@@ -71,3 +71,5 @@ async def get_book(book_id: int) -> Book:
     if book_id not in db.books:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
     return db.get_book(book_id)
+
+# check CI
