@@ -1,0 +1,21 @@
+# name: CD
+# on:
+#   pull_request:
+#     types: [closed]
+#     branches: [main]
+
+# jobs:
+#   deploy:
+#     if: github.event.pull_request.merged
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Trigger Render Deployment
+#         uses: addnab/request@v1
+#         with:
+#           url: https://api.render.com/v1/services/YOUR_RENDER_SERVICE_ID/deploys
+#           method: POST
+#           headers: |
+#             {
+#               "Accept": "application/json",
+#               "Authorization": "Bearer ${{ secrets.RENDER_API_KEY }}"
+#             }
