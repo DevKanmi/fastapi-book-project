@@ -31,8 +31,9 @@ EXPOSE 80
 
 # Update Supervisor config
 RUN echo "[supervisord]\nnodaemon=true\n\n\
-[program:nginx]\ncommand=/usr/sbin/nginx -g 'daemon off;'\nautostart=true\nautorestart=true\nstartretries=5\n\n\
-[program:uvicorn]\ncommand=uvicorn main:app --host 127.0.0.1 --port 8000 --workers 4\nautostart=true\nautorestart=true\nstartretries=5" \
+[program:nginx]\ncommand=/usr/sbin/nginx -g 'daemon off;'\nautostart=true\nautorestart=true\nstdout_logfile=/dev/stdout\nstderr_logfile=/dev/stderr\n\n\
+[program:uvicorn]\ncommand=uvicorn main:app --host 127.0.0.1 --port 8000 --workers 4\n\
+autostart=true\nautorestart=true\nstdout_logfile=/dev/stdout\nstderr_logfile=/dev/stderr" \
 > /etc/supervisord.conf
 
 # Start Nginx and Uvicorn using Supervisor
