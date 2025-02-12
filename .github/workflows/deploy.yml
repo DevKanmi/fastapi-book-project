@@ -1,27 +1,39 @@
 name: Deploy API
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
-      - name: Install SSHPass
-        run: sudo apt-get install -y sshpass
-
-      - name: Deploy to EC2
+        
+      - name: Install Expect
+        run: sudo apt-get update && sudo apt-get install -y expect
+        
+      - name: Deploy to EC2 with Expect
+        env:
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+          EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
+          EC2_PASSWORD: ${{ secrets.EC2_PASSWORD }}
         run: |
-          sshpass -p "${{ secrets.EC2_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            cd /home/${{ secrets.EC2_USERNAME }}/fastapi-book-project
-            git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
-            sudo systemctl restart fastapi
+          expect <<EOF
+          spawn ssh -o StrictHostKeyChecking=no \$EC2_USERNAME@\$EC2_PUBLIC_IP
+          expect "password:"
+          send "\$EC2_PASSWORD\r"
+          expect "$ "
+          send "cd /home/\$EC2_USERNAME/fastapi-book-project\r"
+          expect "$ "
+          send "git pull origin main\r"
+          expect "$ "
+          send "source venv/bin/activate\r"
+          expect "$ "
+          send "pip install -r requirements.txt\r"
+          expect "$ "
+          send "sudo systemctl restart fastapi\r"
+          expect "$ "
+          send "exit\r"
+          expect eof
           EOF
