@@ -44,7 +44,7 @@ fastapi-book-project/
 - pytest
 - uvicorn
 
-## Installation
+## Installation Locally
 
 1. Clone the repository:
 
@@ -74,10 +74,94 @@ pip install -r requirements.txt
 uvicorn main:app
 ```
 
-2. Access the API documentation:
+## Deployment on AWS EC2
 
-- Swagger UI: http://54.173.160.103/docs
-- ReDoc: http://54.173.160.103/redoc
+### 1. **Set Up EC2 Instance**
+- Launch an **Ubuntu 22.04** instance.
+- Allow inbound rules for **ports 22 (SSH), 80, and 443 (HTTP/S), and 8000 (if testing)** in the **Security Group**.
+
+### 2. **Connect to the Server**
+```sh
+ssh -i your-key.pem ubuntu@your-ec2-public-ip
+```
+
+### 3. **Install Required Packages**
+```sh
+sudo apt update && sudo apt install -y python3-pip python3-venv nginx
+```
+
+### 4. **Clone the Repository and Set Up the Environment**
+```sh
+git clone https://github.com/yourusername/fastapi-book-project.git
+cd fastapi-book-project
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 5. **Run FastAPI with Uvicorn**
+```sh
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+### 6. **Configure Systemd Service**
+```sh
+sudo vi /etc/systemd/system/fastapi.service
+```
+Paste the following:
+```ini
+[Unit]
+Description=FastAPI Application
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/fastapi-book-project
+ExecStart=/home/ubuntu/fastapi-book-project/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+Save and exit, then enable and start the service:
+```sh
+sudo systemctl daemon-reload
+sudo systemctl enable fastapi
+sudo systemctl start fastapi
+```
+Check status:
+```sh
+sudo systemctl status fastapi
+```
+
+### 7. **Set Up Nginx Reverse Proxy**
+```sh
+sudo vi /etc/nginx/sites-available/fastapi
+```
+Paste the following configuration:
+```nginx
+server {
+    listen 80;
+    server_name your-ec2-public-ip;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+Enable the configuration and restart Nginx:
+```sh
+sudo ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+### 8. **Access Your API on the Browser**
+Go to `http://your-ec2-public-ip/docs` to test the FastAPI application.
+
 
 ## API Endpoints
 
