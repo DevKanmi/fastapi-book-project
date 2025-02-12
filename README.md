@@ -76,8 +76,8 @@ uvicorn main:app
 
 2. Access the API documentation:
 
-- Swagger UI: http://52.35.34.186/docs
-- ReDoc: http://52.35.34.186/redoc
+- Swagger UI: http://54.173.160.103/docs
+- ReDoc: http://54.173.160.103/redoc
 
 ## API Endpoints
 
