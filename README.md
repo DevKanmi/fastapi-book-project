@@ -74,6 +74,10 @@ pip install -r requirements.txt
 uvicorn main:app
 ```
 
+2. Access the API documentation:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
 ## Deployment on AWS EC2
 
 ### 1. **Set Up EC2 Instance**
